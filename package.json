@@ -1,0 +1,12 @@
+{
+    "devDependencies": {
+        "@types/express": "^5.0.1",
+        "@types/n3": "^1.24.2",
+        "@types/node": "^22.15.16",
+        "body-parser": "^2.2.0",
+        "dockerfile-ast": "^0.7.0",
+        "n3": "^1.25.2",
+        "simple-git": "^3.27.0",
+        "yaml": "^2.7.1"
+    }
+}
