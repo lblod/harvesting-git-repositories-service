@@ -54,7 +54,7 @@ export async function run(deltaEntry: string) {
     fileContainer.uri = `http://redpencil.data.gift/id/dataContainers/${fileContainer.id}`;
     const collection = await getHarvestCollectionForTask(task);
     const rdo = await getRemoteDataObjects(task, collection);
-    const triples: string[] = [];
+    const triples: string[] = [PREFIXES];
     for (const { gitOrgUrl, gitProvider } of rdo) {
       let provider = providers.get(gitProvider);
       if (!provider) {
