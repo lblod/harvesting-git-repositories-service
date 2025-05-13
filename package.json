@@ -8,5 +8,9 @@
         "n3": "^1.25.2",
         "simple-git": "^3.27.0",
         "yaml": "^2.7.1"
+    },
+    "dependencies": {
+        "@types/parse-link-header": "^2.0.3",
+        "parse-link-header": "^2.0.0"
     }
 }

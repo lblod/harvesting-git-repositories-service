@@ -1,9 +1,10 @@
 import { tmpdir } from "os";
 import YAML from "yaml";
 import { DockerfileParser } from "dockerfile-ast";
-import { readFile } from "fs/promises";
+import { readFile, rm } from "fs/promises";
 import {
   connectionOptions,
+  GIT_PROVIDER,
   PREFIXES,
   SPARQL_INSERT_BATCH_SIZE,
   STATUS_BUSY,
@@ -46,7 +47,6 @@ const git: SimpleGit = simpleGit(options);
 export async function run(deltaEntry: string) {
   const task = await loadTask(deltaEntry);
   if (!task) return;
-  console.log("task,", task);
   try {
     updateTaskStatus(task, STATUS_BUSY);
     const graphContainer = { id: uuid(), uri: undefined as string | undefined };
@@ -56,17 +56,18 @@ export async function run(deltaEntry: string) {
     const collection = await getHarvestCollectionForTask(task);
     const rdo = await getRemoteDataObjects(task, collection);
     const triples: string[] = [PREFIXES];
-    for (const { gitOrgUrl, gitProvider } of rdo) {
-      let provider = providers.get(gitProvider);
+    for (const { gitOrgUrl } of rdo) {
+      let provider = providers.get(GIT_PROVIDER);
       if (!provider) {
-        throw `${gitProvider} not handled yet`;
+        throw `${GIT_PROVIDER} not handled yet`;
       }
       const repositories = await provider.fetchRepositories(gitOrgUrl);
 
       for (const repo of repositories) {
+        console.log("handling repo", repo);
         const resource = [
           `<${repo.url}> a ext:GitRepository`,
-          `<${repo.url}> ext:updatedDate ${sparqlEscapeDateTime(repo.updatedAt || repo.createdAt)}`,
+          `<${repo.url}> ext:updatedDate ${sparqlEscapeDateTime(repo.updatedAt || repo.createdAt || new Date())}`,
           `<${repo.url}> ext:name ${sparqlEscapeString(repo.name)}`,
           `<${repo.url}> ext:description ${sparqlEscapeString(repo.description || "")}`,
         ];
@@ -95,8 +96,10 @@ export async function run(deltaEntry: string) {
           resource.push(`<${repo.url}> mu:uuid "${uuid()}"`);
         }
         // clone the repo
-        await git.clone(repo.gitUrl);
+        console.log(`cloning ${repo.gitUrl}`);
         const gitPath = path.join(tmpdir(), repo.name);
+        await rm(gitPath, { recursive: true, force: true });
+        await git.clone(repo.gitUrl.replace("git://", "https://"));
         if (!existsSync(gitPath)) {
           console.error("cannot access", gitPath);
           continue;
@@ -126,17 +129,23 @@ export async function run(deltaEntry: string) {
           );
           let dockerCompose = YAML.parse(dockerComposeContent);
           const services = dockerCompose.services;
-          const images = Object.keys(services)
-            .map((s) => services[s].image)
-            .map((f) => sparqlEscapeString(f))
-            .join(",");
-          resource.push(`<${repo.url}> ext:serviceImages ${images}`);
+          const images = new Set(
+            Object.keys(services)
+              .map((s) => services[s].image)
+              .filter((s) => s?.length)
+              .map((f) => sparqlEscapeString(f)),
+          );
+          resource.push(
+            `<${repo.url}> ext:serviceImages ${[...images].join(",")}`,
+          );
         }
         triples.push(...resource);
       }
 
       const parser = new Parser({ format: "text/turtle" });
-      const turtle = parser.parse(triples.join(".\n"));
+      const triplesStr = triples.map((t) => `${t}.`).join("\n");
+      console.log(`\n${triplesStr}\n`);
+      const turtle = parser.parse(triplesStr);
       const rdfTypes = [...turtle].filter(
         (triple) =>
           triple.predicate.value ===

@@ -45,6 +45,9 @@ export const SPARQL_INSERT_BATCH_SIZE = parseInt(
   process.env.BATCH_SIZE || "10",
 );
 
+export const GIT_PROVIDER =
+  process.env.GIT_PROVIDER || "http://mu.semte.ch/vcs/github";
+
 export const connectionOptions = {
   scope: "http://services.redpencil.io/harvesting-git-service",
 };
