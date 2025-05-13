@@ -46,6 +46,7 @@ const git: SimpleGit = simpleGit(options);
 export async function run(deltaEntry: string) {
   const task = await loadTask(deltaEntry);
   if (!task) return;
+  console.log("task,", task);
   try {
     updateTaskStatus(task, STATUS_BUSY);
     const graphContainer = { id: uuid(), uri: undefined as string | undefined };

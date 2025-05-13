@@ -1,14 +1,14 @@
 export const TASK_HARVEST_GIT_ORG =
-    "http://lblod.data.gift/id/jobs/concept/TaskOperation/harvestRepositories";
+  "http://lblod.data.gift/id/jobs/concept/TaskOperation/harvestRepositories";
 
 export const STATUS_BUSY =
-    "http://redpencil.data.gift/id/concept/JobStatus/busy";
+  "http://redpencil.data.gift/id/concept/JobStatus/busy";
 export const STATUS_SCHEDULED =
-    "http://redpencil.data.gift/id/concept/JobStatus/scheduled";
+  "http://redpencil.data.gift/id/concept/JobStatus/scheduled";
 export const STATUS_SUCCESS =
-    "http://redpencil.data.gift/id/concept/JobStatus/success";
+  "http://redpencil.data.gift/id/concept/JobStatus/success";
 export const STATUS_FAILED =
-    "http://redpencil.data.gift/id/concept/JobStatus/failed";
+  "http://redpencil.data.gift/id/concept/JobStatus/failed";
 
 export const JOB_TYPE = "http://vocab.deri.ie/cogs#Job";
 export const TASK_TYPE = "http://redpencil.data.gift/vocabularies/tasks/Task";
@@ -30,21 +30,21 @@ export const PREFIXES = `
 `;
 
 export const HIGH_LOAD_DATABASE_ENDPOINT =
-    process.env.HIGH_LOAD_DATABASE_ENDPOINT || "http://database:8890/sparql";
+  process.env.HIGH_LOAD_DATABASE_ENDPOINT || "http://database:8890/sparql";
 export const TARGET_GRAPH =
-    process.env.TARGET_GRAPH || "http://mu.semte.ch/graphs/public";
+  process.env.TARGET_GRAPH || "http://mu.semte.ch/graphs/public";
 
 export const PUBLISHER_URI =
-    process.env.PUBLISHER_URI ||
-    "http://data.lblod.info/services/harvest-git-repositories-service";
+  process.env.PUBLISHER_URI ||
+  "http://data.lblod.info/services/harvest-git-repositories-service";
 
 export const DEFAULT_GRAPH =
-    process.env.DEFAULT_GRAPH || "http://mu.semte.ch/graphs/harvesting";
+  process.env.DEFAULT_GRAPH || "http://mu.semte.ch/graphs/harvesting";
 
 export const SPARQL_INSERT_BATCH_SIZE = parseInt(
-    process.env.BATCH_SIZE || "10",
+  process.env.BATCH_SIZE || "10",
 );
 
 export const connectionOptions = {
-    scope: "http://services.redpencil.io/harvesting-git-service",
+  scope: "http://services.redpencil.io/harvesting-git-service",
 };

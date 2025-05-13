@@ -22,7 +22,7 @@ app.post(
       );
       if (!entries.length) {
         console.log(
-          "Delta did not contain potential tasks that are ready for scanning a docker image. awaiting the next batch!",
+          "Delta did not contain potential tasks that are ready for harvesting a git repository. awaiting the next batch!",
         );
         return res.status(204).send();
       }
