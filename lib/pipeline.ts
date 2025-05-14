@@ -55,7 +55,7 @@ export async function run(deltaEntry: string) {
     fileContainer.uri = `http://redpencil.data.gift/id/dataContainers/${fileContainer.id}`;
     const collection = await getHarvestCollectionForTask(task);
     const rdo = await getRemoteDataObjects(task, collection);
-    const triples: string[] = [PREFIXES];
+    const triples: string[] = [];
     for (const { gitOrgUrl } of rdo) {
       let provider = providers.get(GIT_PROVIDER);
       if (!provider) {
@@ -153,7 +153,12 @@ export async function run(deltaEntry: string) {
       );
       for (const rdfTypesBatch of chunk(rdfTypes, SPARQL_INSERT_BATCH_SIZE)) {
         const data = await storeToString(rdfTypesBatch);
-        await update(`INSERT DATA {${data}}`, connectionOptions);
+        await update(
+          `
+                ${PREFIXES}
+                INSERT DATA {${data}}`,
+          connectionOptions,
+        );
       }
 
       const batches = chunk(turtle, SPARQL_INSERT_BATCH_SIZE);
