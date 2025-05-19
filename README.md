@@ -124,5 +124,5 @@ Add the following rule in your delta config:
             ignoreFromSelf: true,
             foldEffectiveChanges: true
         },
-    },
+    }
 ```
