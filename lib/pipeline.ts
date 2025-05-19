@@ -55,7 +55,9 @@ export async function run(deltaEntry: string) {
     fileContainer.uri = `http://redpencil.data.gift/id/dataContainers/${fileContainer.id}`;
     const collection = await getHarvestCollectionForTask(task);
     const rdo = await getRemoteDataObjects(task, collection);
-    const triples: string[] = [];
+    const triples: string[] = [
+      "@prefix xsd: <http://www.w3.org/2001/XMLSchema#>",
+    ];
     for (const { gitOrgUrl } of rdo) {
       let provider = providers.get(GIT_PROVIDER);
       if (!provider) {
@@ -66,10 +68,10 @@ export async function run(deltaEntry: string) {
       for (const repo of repositories) {
         console.log("handling repo", repo);
         const resource = [
-          `<${repo.url}> a ext:GitRepository`,
-          `<${repo.url}> ext:updatedDate ${sparqlEscapeDateTime(repo.updatedAt || repo.createdAt || new Date())}`,
-          `<${repo.url}> ext:name ${sparqlEscapeString(repo.name)}`,
-          `<${repo.url}> ext:description ${sparqlEscapeString(repo.description || "")}`,
+          `<${repo.url}> a <http://mu.semte.ch/vocabularies/ext/GitRepository>`,
+          `<${repo.url}> <http://mu.semte.ch/vocabularies/ext/updatedDate> ${sparqlEscapeDateTime(repo.updatedAt || repo.createdAt || new Date())}`,
+          `<${repo.url}> <http://mu.semte.ch/vocabularies/ext/name> ${sparqlEscapeString(repo.name)}`,
+          `<${repo.url}> <http://mu.semte.ch/vocabularies/ext/description> ${sparqlEscapeString(repo.description || "")}`,
         ];
         const q = `
                     ${PREFIXES}
@@ -93,7 +95,9 @@ export async function run(deltaEntry: string) {
             continue;
           }
         } else {
-          resource.push(`<${repo.url}> mu:uuid "${uuid()}"`);
+          resource.push(
+            `<${repo.url}> <http://mu.semte.ch/vocabularies/core/uuid> "${uuid()}"`,
+          );
         }
         // clone the repo
         console.log(`cloning ${repo.gitUrl}`);
@@ -117,7 +121,11 @@ export async function run(deltaEntry: string) {
             .getFROMs()
             .map((f) => sparqlEscapeString(f.getImage()))
             .join(",");
-          resource.push(`<${repo.url}> ext:imageLayers ${images}`);
+          if (images?.trim().length) {
+            resource.push(
+              `<${repo.url}> <http://mu.semte.ch/vocabularies/ext/imageLayers> ${images}`,
+            );
+          }
         }
         // read docker-compose
         if (existsSync(path.join(gitPath, "docker-compose.yml"))) {
@@ -136,7 +144,7 @@ export async function run(deltaEntry: string) {
               .map((f) => sparqlEscapeString(f)),
           );
           resource.push(
-            `<${repo.url}> ext:serviceImages ${[...images].join(",")}`,
+            `<${repo.url}> <http://mu.semte.ch/vocabularies/ext/serviceImages> ${[...images].join(",")}`,
           );
         }
         triples.push(...resource);

@@ -2,7 +2,6 @@ import Provider, { Repository } from "./repository";
 import parseLinkHeader from "parse-link-header";
 export default class GithubProvider implements Provider {
   async fetchRepositories(apiUrl: string): Promise<Repository[]> {
-    console.log("using url", apiUrl);
     let repositories: Repository[] = [];
     const response = await fetch(apiUrl);
     if (response.status !== 200) {
